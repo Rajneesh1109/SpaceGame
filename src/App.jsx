@@ -12,9 +12,15 @@ export default function App() {
   const [winningLine, setWinningLine] = useState([]);
   const [confetti, setConfetti] = useState([]);
 
+  // New state for player names
+  const [playerNames, setPlayerNames] = useState({ p1: '', p2: '' });
+  const [gameStarted, setGameStarted] = useState(false);
+
   useEffect(() => {
-    localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
-  }, [scores]);
+    if (gameStarted) {
+      localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
+    }
+  }, [scores, gameStarted]);
 
   const checkWinner = (squares) => {
     const lines = [
@@ -79,7 +85,7 @@ export default function App() {
     setBoard(Array(9).fill(null));
     setWinner(null);
     setWinningLine([]);
-    setXIsNext(true); // Or keep alternating
+    setXIsNext(true); // Player 1 always starts next round, or can be alternated
   };
 
   const resetAll = () => {
@@ -89,8 +95,60 @@ export default function App() {
     setXIsNext(true);
     setScores({ X: 0, O: 0, Draws: 0 });
     localStorage.removeItem('tictactoe_scores');
+    setPlayerNames({ p1: '', p2: '' });
+    setGameStarted(false);
   };
 
+  // Render Setup Screen if game hasn't started
+  if (!gameStarted) {
+    return (
+      <div className="space-game">
+        <StarBackground />
+        <div className="setup-container">
+          <h1 className="title">COSMIC TIC TAC TOE</h1>
+          
+          <div className="input-group">
+            <label className="neon-text pink">Player 1 (X) Name</label>
+            <input 
+              type="text" 
+              className="name-input pink-input" 
+              value={playerNames.p1} 
+              onChange={(e) => setPlayerNames({...playerNames, p1: e.target.value})} 
+              placeholder="Enter name..."
+              maxLength={15}
+            />
+          </div>
+
+          <div className="input-group">
+            <label className="neon-text cyan">Player 2 (O) Name</label>
+            <input 
+              type="text" 
+              className="name-input cyan-input" 
+              value={playerNames.p2} 
+              onChange={(e) => setPlayerNames({...playerNames, p2: e.target.value})} 
+              placeholder="Enter name..."
+              maxLength={15}
+            />
+          </div>
+
+          <button 
+            className="btn btn-start" 
+            onClick={() => {
+              if (playerNames.p1.trim() && playerNames.p2.trim()) {
+                setGameStarted(true);
+              }
+            }}
+            disabled={!playerNames.p1.trim() || !playerNames.p2.trim()}
+          >
+            START GAME
+          </button>
+        </div>
+        <style dangerouslySetInnerHTML={{ __html: styles }} />
+      </div>
+    );
+  }
+
+  // Render Main Game
   return (
     <div className="space-game">
       <StarBackground />
@@ -116,7 +174,7 @@ export default function App() {
 
         <div className="score-board">
           <div className={`score-card p1 ${xIsNext && !winner ? 'active' : ''}`}>
-            <span className="player-name">Player 1 (X)</span>
+            <span className="player-name">{playerNames.p1} (X)</span>
             <span className="score-value">{scores.X}</span>
           </div>
           <div className="score-card draws">
@@ -124,16 +182,16 @@ export default function App() {
             <span className="score-value">{scores.Draws}</span>
           </div>
           <div className={`score-card p2 ${!xIsNext && !winner ? 'active' : ''}`}>
-            <span className="player-name">Player 2 (O)</span>
+            <span className="player-name">{playerNames.p2} (O)</span>
             <span className="score-value">{scores.O}</span>
           </div>
         </div>
 
         <div className="status-bar">
           {winner ? (
-            winner === 'Draw' ? "IT'S A DRAW!" : `PLAYER ${winner === 'X' ? '1' : '2'} (${winner}) WINS!`
+            winner === 'Draw' ? "IT'S A DRAW!" : `${winner === 'X' ? playerNames.p1 : playerNames.p2} (${winner}) WINS!`
           ) : (
-            `TURN: PLAYER ${xIsNext ? '1 (X)' : '2 (O)'}`
+            `TURN: ${xIsNext ? playerNames.p1 + ' (X)' : playerNames.p2 + ' (O)'}`
           )}
         </div>
 
@@ -280,6 +338,106 @@ body, html {
   100% { transform: translateY(120vh) rotate(720deg) scale(0.5); opacity: 0; }
 }
 
+/* Setup Container */
+.setup-container {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  background: rgba(10, 10, 25, 0.6);
+  padding: 50px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  width: 90%;
+  max-width: 450px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.neon-text {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.neon-text.pink { 
+  color: var(--neon-pink); 
+  text-shadow: 0 0 10px var(--neon-pink-glow); 
+}
+
+.neon-text.cyan { 
+  color: var(--neon-cyan); 
+  text-shadow: 0 0 10px var(--neon-cyan-glow); 
+}
+
+.name-input {
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 15px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.2rem;
+  outline: none;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.name-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.name-input.pink-input:focus {
+  border-color: var(--neon-pink);
+  box-shadow: 0 0 15px var(--neon-pink-glow);
+  background: rgba(255, 0, 127, 0.1);
+}
+
+.name-input.cyan-input:focus {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 15px var(--neon-cyan-glow);
+  background: rgba(0, 255, 255, 0.1);
+}
+
+.btn-start {
+  margin-top: 15px;
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  letter-spacing: 2px;
+}
+
+.btn-start:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-start:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  border-color: #fff;
+  transform: translateY(-2px);
+}
+
 /* Game Container */
 .game-container {
   position: relative;
@@ -363,6 +521,10 @@ body, html {
   letter-spacing: 1px;
   margin-bottom: 8px;
   opacity: 0.8;
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .score-value {
@@ -381,6 +543,7 @@ body, html {
   text-shadow: 0 0 10px rgba(255,255,255,0.4);
   letter-spacing: 2px;
   color: #fff;
+  text-transform: uppercase;
 }
 
 /* Board */
@@ -516,7 +679,7 @@ body, html {
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
-  .game-container {
+  .game-container, .setup-container {
     padding: 20px;
     width: 90%;
   }
@@ -543,6 +706,7 @@ body, html {
   }
   .player-name {
     font-size: 0.7rem;
+    max-width: 70px;
   }
 }
 `;
