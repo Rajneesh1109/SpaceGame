@@ -17,7 +17,8 @@ A classic game reimagined. **SpaceGame** is an immersive, neon-drenched Tic Tac 
 
 ## 📸 Preview
 
-![SpaceGame Preview](./preview.png)
+<img width="854" height="923" alt="image" src="https://github.com/user-attachments/assets/851115e3-42ac-467e-89e9-43939d470535" />
+
 
 ---
 
