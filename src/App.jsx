@@ -191,6 +191,7 @@ export default function App() {
             VS AI (MINIMAX)
           </button>
         </div>
+        <div className="footer">© 2026 SpaceGame by Rajneesh Chaubey. All rights reserved.</div>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
       </div>
     );
@@ -256,6 +257,7 @@ export default function App() {
             Back to Mode Select
           </button>
         </div>
+        <div className="footer">© 2026 SpaceGame by Rajneesh Chaubey. All rights reserved.</div>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
       </div>
     );
@@ -330,6 +332,7 @@ export default function App() {
         </div>
       </div>
 
+      <div className="footer">© 2026 SpaceGame by Rajneesh Chaubey. All rights reserved.</div>
       <style dangerouslySetInnerHTML={{ __html: styles }} />
     </div>
   );
@@ -842,5 +845,19 @@ body, html {
     font-size: 0.7rem;
     max-width: 70px;
   }
+}
+
+.footer {
+  position: absolute;
+  bottom: 15px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--neon-cyan);
+  opacity: 0.7;
+  text-shadow: 0 0 5px var(--neon-cyan-glow);
+  letter-spacing: 1px;
+  z-index: 10;
+  padding: 0 20px;
 }
 `;
