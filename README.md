@@ -2,13 +2,8 @@
   
 # 🚀 SpaceGame: Cosmic Tic Tac Toe
 
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 A classic game reimagined. **SpaceGame** is an immersive, neon-drenched Tic Tac Toe experience built with React and Vite. Play against a friend or challenge an unbeatable AI in the depths of space!
-<img width="854" height="923" alt="image" src="https://github.com/user-attachments/assets/851115e3-42ac-467e-89e9-43939d470535" />
-
 
 
 </div>
@@ -76,4 +71,4 @@ Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
 
 ## 👨‍💻 Author
 
-Built with ❤️ by **Rajneesh**
+Built by **Rajneesh Chaubey**
