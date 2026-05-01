@@ -1,44 +1,77 @@
-# 🚀 SpaceGame
+<div align="center">
+  
+# 🚀 SpaceGame: Cosmic Tic Tac Toe
 
-A cosmic-themed, 2-player Tic Tac Toe game built with React and Vite. Play against a friend in a deep navy galaxy with neon colors, twinkling stars, and satisfying animations.
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+
+A classic game reimagined. **SpaceGame** is an immersive, neon-drenched Tic Tac Toe experience built with React and Vite. Play against a friend or challenge an unbeatable AI in the depths of space!
+
+**[✨ View Live Demo ✨](https://spacegame2507.vercel.app/)**
+
+</div>
+
+---
+
+## 📸 Preview
+
+> *[Insert Screenshot or GIF of the game here]*
+
+---
 
 ## ✨ Features
 
-- **Dark Space Theme:** Immersive deep space background with custom CSS star animations.
-- **Neon UI:** Bright neon pink (X) and neon cyan (O) colors with glowing effects.
-- **Dynamic Animations:** Pop-in markers, pulsing win highlights, and a festive confetti burst upon victory.
-- **Score Tracking:** Automatically tracks Player 1, Player 2, and Draws. Scores persist across sessions using `localStorage`.
-- **Smart Game Logic:** Built-in win detection (rows, columns, diagonals) and draw handling.
-- **Single Component Architecture:** Clean, self-contained implementation using React Hooks (`useState`, `useEffect`) and inline styles.
+- **🎮 Dual Game Modes**: Choose between classic "2 Player Mode" or test your logic against the "Vs AI" mode.
+- **🧠 Unbeatable AI**: The AI opponent uses the powerful Minimax algorithm—it plays perfectly and will never lose!
+- **🌌 Immersive Cosmic Theme**: Deep space background featuring smooth, custom CSS star animations.
+- **💡 Neon UI Styling**: Vibrant neon pink (X) and neon cyan (O) graphics with glowing text-shadows and micro-animations.
+- **🏷️ Custom Player Names**: Personalize your matches by entering your own names before the game begins.
+- **📊 Score Tracking**: Automatically keeps tally of wins and draws. Scores persist across sessions using `localStorage`.
+- **🎉 Dynamic Win Effects**: Enjoy a satisfying multi-colored confetti burst upon claiming victory.
+
+---
 
 ## 🛠️ Tech Stack
 
-- **React:** UI library for building the game logic and state management.
-- **Vite:** Next-generation frontend tooling for fast builds and hot-module replacement.
-- **Vanilla CSS:** Pure CSS embedded within the component for zero external dependencies.
-- **Google Fonts:** Utilizing the *Orbitron* font for an authentic futuristic aesthetic.
+- **Frontend Library**: React.js (Hooks: `useState`, `useEffect`)
+- **Build Tool**: Vite
+- **Styling**: Vanilla CSS (Zero external dependencies)
+- **Typography**: Google Fonts (Orbitron)
+
+---
 
 ## 🚀 How to Run Locally
 
-Follow these simple steps to run the game on your local machine:
+Follow these steps to get a copy of the project up and running on your local machine for development and testing purposes.
 
-1. **Clone or Download the Repository:**
-   Navigate into the project directory.
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### Installation
+
+1. **Clone the repository:**
    ```bash
+   # (Replace with your actual repository URL if different)
+   git clone https://github.com/Rajneesh1109/SpaceGame.git
    cd SpaceGame
    ```
 
-2. **Install Dependencies:**
-   Make sure you have Node.js installed, then run:
+2. **Install the dependencies:**
    ```bash
    npm install
    ```
 
-3. **Start the Development Server:**
-   Launch the app with Vite:
+3. **Start the development server:**
    ```bash
    npm run dev
    ```
 
-4. **Play the Game:**
-   Open your browser and navigate to `http://localhost:5173/` to start playing!
+4. **Play the game:**
+   Open your browser and navigate to `http://localhost:5173/`
+
+---
+
+## 👨‍💻 Author
+
+Built with ❤️ by **Rajneesh**
