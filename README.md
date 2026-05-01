@@ -8,7 +8,8 @@
 
 A classic game reimagined. **SpaceGame** is an immersive, neon-drenched Tic Tac Toe experience built with React and Vite. Play against a friend or challenge an unbeatable AI in the depths of space!
 
-**[✨ View Live Demo ✨](https://spacegame2507.vercel.app/)**
+**[✨ View Live Demo ✨](https://spacegame2507.vercel.app/)** <img width="735" height="813" alt="image" src="https://github.com/user-attachments/assets/79c85de9-f964-4a58-b83a-299f3b07721b" />
+
 
 </div>
 
