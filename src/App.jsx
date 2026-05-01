@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 // Main App component
 export default function App() {
+  // Setup States
+  const [gameMode, setGameMode] = useState(null); // '2P' or 'AI'
+  const [playerNames, setPlayerNames] = useState({ p1: '', p2: '' });
+  const [gameStarted, setGameStarted] = useState(false);
+
+  // Game States
   const [board, setBoard] = useState(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
   const [scores, setScores] = useState(() => {
@@ -11,16 +17,43 @@ export default function App() {
   const [winner, setWinner] = useState(null); // 'X', 'O', 'Draw'
   const [winningLine, setWinningLine] = useState([]);
   const [confetti, setConfetti] = useState([]);
-
-  // New state for player names
-  const [playerNames, setPlayerNames] = useState({ p1: '', p2: '' });
-  const [gameStarted, setGameStarted] = useState(false);
+  
+  // Timer State
+  const [timeLeft, setTimeLeft] = useState(15);
 
   useEffect(() => {
     if (gameStarted) {
       localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
     }
   }, [scores, gameStarted]);
+
+  // Timer Effect
+  useEffect(() => {
+    if (!gameStarted || winner) return;
+
+    const timerId = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          // Time ran out -> forfeit turn
+          setXIsNext((currentX) => !currentX);
+          return 15;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [gameStarted, winner, xIsNext]);
+
+  // AI Move Effect
+  useEffect(() => {
+    if (gameStarted && gameMode === 'AI' && !xIsNext && !winner) {
+      const timer = setTimeout(() => {
+        makeAiMove();
+      }, 600); // 600ms delay for a more natural feel
+      return () => clearTimeout(timer);
+    }
+  }, [xIsNext, gameStarted, gameMode, winner, board]);
 
   const checkWinner = (squares) => {
     const lines = [
@@ -40,12 +73,72 @@ export default function App() {
     return null;
   };
 
-  const handleClick = (i) => {
+  // Minimax Algorithm
+  const minimax = (newBoard, depth, isMaximizing) => {
+    const result = checkWinner(newBoard);
+    if (result) {
+      if (result.winner === 'O') return 10 - depth;
+      if (result.winner === 'X') return depth - 10;
+      return 0; // Draw
+    }
+
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (newBoard[i] === null) {
+          newBoard[i] = 'O';
+          let score = minimax(newBoard, depth + 1, false);
+          newBoard[i] = null;
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (newBoard[i] === null) {
+          newBoard[i] = 'X';
+          let score = minimax(newBoard, depth + 1, true);
+          newBoard[i] = null;
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
+  };
+
+  const makeAiMove = () => {
+    let bestScore = -Infinity;
+    let move = -1;
+    let newBoard = [...board];
+    
+    // Check if board is totally empty to randomize first move and avoid always playing center
+    // (Minimax is deterministic, we can add a bit of variety if AI goes first, but X goes first usually).
+    
+    for (let i = 0; i < 9; i++) {
+      if (newBoard[i] === null) {
+        newBoard[i] = 'O';
+        let score = minimax(newBoard, 0, false);
+        newBoard[i] = null;
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
+      }
+    }
+    if (move !== -1) {
+      handleClick(move, true);
+    }
+  };
+
+  const handleClick = (i, isAi = false) => {
     if (board[i] || winner) return;
+    if (gameMode === 'AI' && !xIsNext && !isAi) return; // Prevent human click during AI turn
 
     const newBoard = [...board];
     newBoard[i] = xIsNext ? 'X' : 'O';
     setBoard(newBoard);
+    setTimeLeft(15); // Reset timer on move
 
     const result = checkWinner(newBoard);
     if (result) {
@@ -69,8 +162,8 @@ export default function App() {
   const triggerConfetti = () => {
     const particles = Array.from({ length: 80 }).map((_, i) => ({
       id: i,
-      x: 10 + Math.random() * 80, // spread across width
-      y: -20 - Math.random() * 30, // start above screen
+      x: 10 + Math.random() * 80, 
+      y: -20 - Math.random() * 30, 
       color: ['#ff007f', '#00ffff', '#ffffff', '#ffea00'][Math.floor(Math.random() * 4)],
       size: Math.random() * 10 + 5,
       delay: Math.random() * 0.2,
@@ -85,7 +178,8 @@ export default function App() {
     setBoard(Array(9).fill(null));
     setWinner(null);
     setWinningLine([]);
-    setXIsNext(true); // Player 1 always starts next round, or can be alternated
+    setXIsNext(true); 
+    setTimeLeft(15); // Reset timer for new round
   };
 
   const resetAll = () => {
@@ -96,10 +190,40 @@ export default function App() {
     setScores({ X: 0, O: 0, Draws: 0 });
     localStorage.removeItem('tictactoe_scores');
     setPlayerNames({ p1: '', p2: '' });
+    setGameMode(null); // Return all the way to Mode Select
     setGameStarted(false);
+    setTimeLeft(15);
   };
 
-  // Render Setup Screen if game hasn't started
+  // Render Mode Selection
+  if (!gameMode) {
+    return (
+      <div className="space-game">
+        <StarBackground />
+        <div className="setup-container">
+          <h1 className="title">COSMIC TIC TAC TOE</h1>
+          <h2 className="neon-text" style={{marginBottom: '20px', color: '#fff'}}>SELECT GAME MODE</h2>
+          
+          <button 
+            className="btn btn-mode" 
+            onClick={() => setGameMode('2P')}
+          >
+            2 PLAYER MODE
+          </button>
+          
+          <button 
+            className="btn btn-mode ai-btn" 
+            onClick={() => setGameMode('AI')}
+          >
+            VS AI (MINIMAX)
+          </button>
+        </div>
+        <style dangerouslySetInnerHTML={{ __html: styles }} />
+      </div>
+    );
+  }
+
+  // Render Name Input Screen
   if (!gameStarted) {
     return (
       <div className="space-game">
@@ -119,28 +243,46 @@ export default function App() {
             />
           </div>
 
-          <div className="input-group">
-            <label className="neon-text cyan">Player 2 (O) Name</label>
-            <input 
-              type="text" 
-              className="name-input cyan-input" 
-              value={playerNames.p2} 
-              onChange={(e) => setPlayerNames({...playerNames, p2: e.target.value})} 
-              placeholder="Enter name..."
-              maxLength={15}
-            />
-          </div>
+          {gameMode === '2P' && (
+            <div className="input-group">
+              <label className="neon-text cyan">Player 2 (O) Name</label>
+              <input 
+                type="text" 
+                className="name-input cyan-input" 
+                value={playerNames.p2} 
+                onChange={(e) => setPlayerNames({...playerNames, p2: e.target.value})} 
+                placeholder="Enter name..."
+                maxLength={15}
+              />
+            </div>
+          )}
 
           <button 
             className="btn btn-start" 
             onClick={() => {
-              if (playerNames.p1.trim() && playerNames.p2.trim()) {
-                setGameStarted(true);
+              if (gameMode === 'AI') {
+                if (playerNames.p1.trim()) {
+                  setPlayerNames(prev => ({ ...prev, p2: 'AI' }));
+                  setGameStarted(true);
+                  setTimeLeft(15);
+                }
+              } else {
+                if (playerNames.p1.trim() && playerNames.p2.trim()) {
+                  setGameStarted(true);
+                  setTimeLeft(15);
+                }
               }
             }}
-            disabled={!playerNames.p1.trim() || !playerNames.p2.trim()}
+            disabled={!playerNames.p1.trim() || (gameMode === '2P' && !playerNames.p2.trim())}
           >
             START GAME
+          </button>
+          
+          <button 
+            className="btn btn-back" 
+            onClick={() => setGameMode(null)}
+          >
+            Back to Mode Select
           </button>
         </div>
         <style dangerouslySetInnerHTML={{ __html: styles }} />
@@ -184,6 +326,13 @@ export default function App() {
           <div className={`score-card p2 ${!xIsNext && !winner ? 'active' : ''}`}>
             <span className="player-name">{playerNames.p2} (O)</span>
             <span className="score-value">{scores.O}</span>
+          </div>
+        </div>
+
+        {/* TIMER DISPLAY */}
+        <div className="timer-container">
+          <div className={`timer ${timeLeft <= 5 ? 'danger' : ''} ${winner ? 'stopped' : ''}`}>
+            {winner ? '--:--' : `00:${timeLeft.toString().padStart(2, '0')}`}
           </div>
         </div>
 
@@ -370,15 +519,8 @@ body, html {
   text-transform: uppercase;
 }
 
-.neon-text.pink { 
-  color: var(--neon-pink); 
-  text-shadow: 0 0 10px var(--neon-pink-glow); 
-}
-
-.neon-text.cyan { 
-  color: var(--neon-cyan); 
-  text-shadow: 0 0 10px var(--neon-cyan-glow); 
-}
+.neon-text.pink { color: var(--neon-pink); text-shadow: 0 0 10px var(--neon-pink-glow); }
+.neon-text.cyan { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan-glow); }
 
 .name-input {
   background: rgba(0, 0, 0, 0.5);
@@ -407,6 +549,28 @@ body, html {
   border-color: var(--neon-cyan);
   box-shadow: 0 0 15px var(--neon-cyan-glow);
   background: rgba(0, 255, 255, 0.1);
+}
+
+.btn-mode {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2rem;
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
+}
+
+.btn-mode:hover {
+  background: rgba(255, 0, 127, 0.15);
+  box-shadow: 0 0 20px var(--neon-pink-glow);
+}
+
+.btn-mode.ai-btn {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.btn-mode.ai-btn:hover {
+  background: rgba(0, 255, 255, 0.15);
+  box-shadow: 0 0 20px var(--neon-cyan-glow);
 }
 
 .btn-start {
@@ -438,6 +602,20 @@ body, html {
   transform: translateY(-2px);
 }
 
+.btn-back {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: color 0.3s;
+}
+.btn-back:hover {
+  color: #fff;
+}
+
 /* Game Container */
 .game-container {
   position: relative;
@@ -445,7 +623,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
   background: rgba(10, 10, 25, 0.6);
   padding: 40px;
   border-radius: 20px;
@@ -458,7 +636,7 @@ body, html {
   font-size: 2.8rem;
   font-weight: 900;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   text-transform: uppercase;
   background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
   -webkit-background-clip: text;
@@ -489,17 +667,9 @@ body, html {
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 
-.score-card.p1 {
-  color: var(--neon-pink);
-}
-
-.score-card.p2 {
-  color: var(--neon-cyan);
-}
-
-.score-card.draws {
-  color: var(--text-secondary);
-}
+.score-card.p1 { color: var(--neon-pink); }
+.score-card.p2 { color: var(--neon-cyan); }
+.score-card.draws { color: var(--text-secondary); }
 
 .score-card.p1.active {
   border-color: var(--neon-pink);
@@ -530,6 +700,45 @@ body, html {
 .score-value {
   font-size: 1.8rem;
   font-weight: 700;
+}
+
+/* Timer */
+.timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.timer {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 30px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  letter-spacing: 2px;
+}
+
+.timer.danger {
+  color: #ff2a2a;
+  border-color: #ff2a2a;
+  text-shadow: 0 0 15px rgba(255, 42, 42, 0.8);
+  animation: pulseTimer 0.8s infinite alternate;
+}
+
+.timer.stopped {
+  opacity: 0.3;
+  color: var(--text-secondary);
+  border-color: transparent;
+}
+
+@keyframes pulseTimer {
+  0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 42, 42, 0.2); }
+  100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 42, 42, 0.6); }
 }
 
 /* Status Bar */
@@ -707,6 +916,10 @@ body, html {
   .player-name {
     font-size: 0.7rem;
     max-width: 70px;
+  }
+  .timer {
+    font-size: 1.5rem;
+    padding: 5px 20px;
   }
 }
 `;
