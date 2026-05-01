@@ -7,8 +7,8 @@
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 
 A classic game reimagined. **SpaceGame** is an immersive, neon-drenched Tic Tac Toe experience built with React and Vite. Play against a friend or challenge an unbeatable AI in the depths of space!
+<img width="854" height="923" alt="image" src="https://github.com/user-attachments/assets/851115e3-42ac-467e-89e9-43939d470535" />
 
-**[✨ View Live Demo ✨](https://spacegame2507.vercel.app/)** <img width="735" height="813" alt="image" src="https://github.com/user-attachments/assets/79c85de9-f964-4a58-b83a-299f3b07721b" />
 
 
 </div>
