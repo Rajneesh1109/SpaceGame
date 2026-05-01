@@ -17,33 +17,12 @@ export default function App() {
   const [winner, setWinner] = useState(null); // 'X', 'O', 'Draw'
   const [winningLine, setWinningLine] = useState([]);
   const [confetti, setConfetti] = useState([]);
-  
-  // Timer State
-  const [timeLeft, setTimeLeft] = useState(15);
 
   useEffect(() => {
     if (gameStarted) {
       localStorage.setItem('tictactoe_scores', JSON.stringify(scores));
     }
   }, [scores, gameStarted]);
-
-  // Timer Effect
-  useEffect(() => {
-    if (!gameStarted || winner) return;
-
-    const timerId = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          // Time ran out -> forfeit turn
-          setXIsNext((currentX) => !currentX);
-          return 15;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timerId);
-  }, [gameStarted, winner, xIsNext]);
 
   // AI Move Effect
   useEffect(() => {
@@ -112,9 +91,6 @@ export default function App() {
     let move = -1;
     let newBoard = [...board];
     
-    // Check if board is totally empty to randomize first move and avoid always playing center
-    // (Minimax is deterministic, we can add a bit of variety if AI goes first, but X goes first usually).
-    
     for (let i = 0; i < 9; i++) {
       if (newBoard[i] === null) {
         newBoard[i] = 'O';
@@ -138,7 +114,6 @@ export default function App() {
     const newBoard = [...board];
     newBoard[i] = xIsNext ? 'X' : 'O';
     setBoard(newBoard);
-    setTimeLeft(15); // Reset timer on move
 
     const result = checkWinner(newBoard);
     if (result) {
@@ -179,7 +154,6 @@ export default function App() {
     setWinner(null);
     setWinningLine([]);
     setXIsNext(true); 
-    setTimeLeft(15); // Reset timer for new round
   };
 
   const resetAll = () => {
@@ -192,7 +166,6 @@ export default function App() {
     setPlayerNames({ p1: '', p2: '' });
     setGameMode(null); // Return all the way to Mode Select
     setGameStarted(false);
-    setTimeLeft(15);
   };
 
   // Render Mode Selection
@@ -264,12 +237,10 @@ export default function App() {
                 if (playerNames.p1.trim()) {
                   setPlayerNames(prev => ({ ...prev, p2: 'AI' }));
                   setGameStarted(true);
-                  setTimeLeft(15);
                 }
               } else {
                 if (playerNames.p1.trim() && playerNames.p2.trim()) {
                   setGameStarted(true);
-                  setTimeLeft(15);
                 }
               }
             }}
@@ -326,13 +297,6 @@ export default function App() {
           <div className={`score-card p2 ${!xIsNext && !winner ? 'active' : ''}`}>
             <span className="player-name">{playerNames.p2} (O)</span>
             <span className="score-value">{scores.O}</span>
-          </div>
-        </div>
-
-        {/* TIMER DISPLAY */}
-        <div className="timer-container">
-          <div className={`timer ${timeLeft <= 5 ? 'danger' : ''} ${winner ? 'stopped' : ''}`}>
-            {winner ? '--:--' : `00:${timeLeft.toString().padStart(2, '0')}`}
           </div>
         </div>
 
@@ -702,45 +666,6 @@ body, html {
   font-weight: 700;
 }
 
-/* Timer */
-.timer-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.timer {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  background: rgba(0, 0, 0, 0.6);
-  padding: 8px 30px;
-  border-radius: 10px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  letter-spacing: 2px;
-}
-
-.timer.danger {
-  color: #ff2a2a;
-  border-color: #ff2a2a;
-  text-shadow: 0 0 15px rgba(255, 42, 42, 0.8);
-  animation: pulseTimer 0.8s infinite alternate;
-}
-
-.timer.stopped {
-  opacity: 0.3;
-  color: var(--text-secondary);
-  border-color: transparent;
-}
-
-@keyframes pulseTimer {
-  0% { transform: scale(1); box-shadow: 0 0 10px rgba(255, 42, 42, 0.2); }
-  100% { transform: scale(1.05); box-shadow: 0 0 20px rgba(255, 42, 42, 0.6); }
-}
-
 /* Status Bar */
 .status-bar {
   font-size: 1.3rem;
@@ -916,10 +841,6 @@ body, html {
   .player-name {
     font-size: 0.7rem;
     max-width: 70px;
-  }
-  .timer {
-    font-size: 1.5rem;
-    padding: 5px 20px;
   }
 }
 `;
